@@ -17,4 +17,7 @@ router.post('/login',
 router.get('/profile', authMiddleware.authUser, userController.profileController);
 
 router.get('/logout', authMiddleware.authUser, userController.logoutController);
+
+router.post("/google-login", userController.googleLoginController);
+
 export default router;
