@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../config/axios";
-
+import {userContext} from '../context/user.context';
 const clientId = "168221201305-gbgg5p307fu9k4allv99842qodudilp1.apps.googleusercontent.com";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const {setUser}= useContext(userContext);
   const navigate = useNavigate();
 
   const handleSuccess = async (response) => {
@@ -30,6 +30,8 @@ const Login = () => {
       })
       .then((res) => {
         console.log(res.data);
+        localStorage.setItem("token", res.data.token);
+        setUser(res.data.user);
         navigate("/");
       })
       .catch((err) => {
