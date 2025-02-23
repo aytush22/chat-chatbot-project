@@ -101,4 +101,19 @@ export const googleLoginController = async (req, res) => {
         console.error("Google login failed:", error);
         res.status(500).json({ error: "Google login failed" });
     }
-};
+}
+
+export const getAllUsersController = async (req, res) => {
+    try {
+        const loggedInUser = await userModel.findOne({
+            email: req.user.email
+        })
+        const allUsers = await userService.getAllUsers({ userId: loggedInUser._id });
+        return res.status(200).json({
+            users: allUsers
+        })
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({ error: err.message });
+    }
+}
