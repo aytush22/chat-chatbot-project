@@ -1,6 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../config/axios";
+import {
+  initializeSocket,
+  sendMessage,
+  receiveMessage,
+} from "../config/socket";
+import { userContext } from "../context/user.context";
 const Project = () => {
   const location = useLocation();
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
@@ -9,6 +15,9 @@ const Project = () => {
   const [selectedUserId, setSelectedUserId] = useState(new Set());
   const [users, setUsers] = useState([]);
   const [project, setProject] = useState(location.state.project);
+  const [message, setMessage] = useState("");
+  const { user } = useContext(userContext);
+  const messageBox = React.createRef();
 
   const handleUserClick = (id) => {
     setSelectedUserId((prevSelectedUserId) => {
@@ -23,6 +32,11 @@ const Project = () => {
   };
 
   useEffect(() => {
+    initializeSocket(project._id);
+    receiveMessage("project-message", (data) => {
+      console.log(data);
+      appendIncomingMessage(data);
+    });
     axios
       .get(`/projects/get-project/${location.state.project._id}`)
       .then((res) => {
@@ -54,6 +68,34 @@ const Project = () => {
       });
   }
 
+  const send = () => {
+    console.log(user);
+    sendMessage("project-message", {
+      message,
+      sender: user,
+    });
+    setMessage("");
+  };
+
+  function appendIncomingMessage(messageObject) {
+    const messageBox = document.querySelector(".message-box");
+    const message = document.createElement("div");
+    message.classList.add(
+      "message",
+      "max-w-56",
+      "flex",
+      "flex-col",
+      "p-2",
+      "bg-slate-50",
+      "w-fit",
+      "rounded-md"
+    );
+    message.innerHTML = `
+    <small class= 'opacity-65 text-xs'>${messageObject.sender.email}</small>
+    <p class = 'text-sm'>${messageObject.message}</p>`;
+    messageBox.appendChild(message);
+  }
+
   return (
     <main className="h-screen w- screen flex">
       <section className="left relative flex flex-col h-full min-w-96 bg-slate-300">
@@ -71,7 +113,10 @@ const Project = () => {
           </button>
         </header>
         <div className="conversation-area flex-grow flex flex-col">
-          <div className="message-box flex-grow flex flex-col gap-1 p-1">
+          <div
+            ref={messageBox}
+            className="message-box flex-grow flex flex-col gap-1 p-1"
+          >
             <div className="message max-w-56 flex flex-col p-2 bg-slate-50 w-fit rounded-md">
               <small className="opacity-65 text-xs">example@gmail.com</small>
               <p className="text-sm">Lorem ipsum dolor sit amet.</p>
@@ -84,11 +129,13 @@ const Project = () => {
           </div>
           <div className="inputField w-full flex">
             <input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
               className="p-2 px-4 border-none outline-none flex-grow"
               type="text"
               placeholder="Enter message"
             />
-            <button className="px-5 bg-slate-950 text-white">
+            <button onClick={send} className="px-5 bg-slate-950 text-white">
               <i className="ri-send-plane-fill"></i>
             </button>
           </div>
@@ -136,23 +183,31 @@ const Project = () => {
               </button>
             </header>
             <div className="users-list flex flex-col gap-2 mb-16 max-h-96 overflow-auto">
-              {users.map((user) => (
-                <div
-                  key={user._id}
-                  className={`user cursor-pointer hover:bg-slate-200 ${
-                    Array.from(selectedUserId).indexOf(user._id) != -1
-                      ? "bg-slate-200"
-                      : ""
-                  } p-2 flex gap-2 items-center`}
-                  onClick={() => handleUserClick(user._id)}
-                >
-                  <div className="aspect-square relative rounded-full w-fit h-fit flex items-center justify-center p-5 text-white bg-slate-600">
-                    <i className="ri-user-fill absolute"></i>
+              {users
+                .filter(
+                  (user) =>
+                    !project.users.some(
+                      (collaborator) => collaborator._id === user._id
+                    )
+                ) // Exclude existing collaborators
+                .map((user) => (
+                  <div
+                    key={user._id}
+                    className={`user cursor-pointer hover:bg-slate-200 ${
+                      Array.from(selectedUserId).indexOf(user._id) !== -1
+                        ? "bg-slate-200"
+                        : ""
+                    } p-2 flex gap-2 items-center`}
+                    onClick={() => handleUserClick(user._id)}
+                  >
+                    <div className="aspect-square relative rounded-full w-fit h-fit flex items-center justify-center p-5 text-white bg-slate-600">
+                      <i className="ri-user-fill absolute"></i>
+                    </div>
+                    <h1 className="font-semibold text-lg">{user.email}</h1>
                   </div>
-                  <h1 className="font-semibold text-lg">{user.email}</h1>
-                </div>
-              ))}
+                ))}
             </div>
+
             <button
               onClick={addCollaborators}
               className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-blue-600 text-white rounded-md"
