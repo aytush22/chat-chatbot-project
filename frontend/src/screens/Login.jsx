@@ -1,19 +1,22 @@
-import React, { useState,useContext } from "react";
+import React, { useState, useContext } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../config/axios";
-import {userContext} from '../context/user.context';
-const clientId = "168221201305-gbgg5p307fu9k4allv99842qodudilp1.apps.googleusercontent.com";
+import { userContext } from "../context/user.context";
+const clientId =
+  "168221201305-gbgg5p307fu9k4allv99842qodudilp1.apps.googleusercontent.com";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const {setUser}= useContext(userContext);
+  const { setUser } = useContext(userContext);
   const navigate = useNavigate();
 
   const handleSuccess = async (response) => {
     try {
-      const res = await axios.post("/users/google-login", { token: response.credential });
+      const res = await axios.post("/users/google-login", {
+        token: response.credential,
+      });
       localStorage.setItem("token", res.data.token);
       navigate("/");
     } catch (error) {
@@ -43,7 +46,9 @@ const Login = () => {
     <GoogleOAuthProvider clientId={clientId}>
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="bg-gray-800/90 p-8 rounded-xl shadow-2xl w-full max-w-md backdrop-blur-lg border border-gray-700">
-          <h2 className="text-3xl font-extrabold text-white mb-6 text-center">Login</h2>
+          <h2 className="text-3xl font-extrabold text-white mb-6 text-center">
+            Login
+          </h2>
           <form onSubmit={submitHandler}>
             <div className="mb-4">
               <label className="block text-gray-300 mb-2" htmlFor="email">
@@ -92,7 +97,10 @@ const Login = () => {
 
           <p className="text-gray-400 mt-4 text-center">
             Don't have an account?{" "}
-            <Link to="/register" className="text-blue-400 hover:text-blue-300 transition">
+            <Link
+              to="/register"
+              className="text-blue-400 hover:text-blue-300 transition"
+            >
               Create one
             </Link>
           </p>

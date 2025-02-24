@@ -22,4 +22,10 @@ router.get('/get-project/:projectId',
     projectController.getProjectById
 )
 
+router.delete('/remove-user', authMiddleware.authUser,
+    body('projectId').isString().withMessage("Project ID is required"),
+    body('userId').isString().withMessage("User ID is required"),
+    projectController.removeUserFromProject
+)
+
 export default router;

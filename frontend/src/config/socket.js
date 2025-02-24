@@ -21,3 +21,10 @@ export const sendMessage = (eventName, data) => {
     socketInstance.emit(eventName, data);
 }
 
+export const disconnectSocket = () => {
+    if (socketInstance) {
+        socketInstance.disconnect();
+        socketInstance = null;
+    }
+}
+
