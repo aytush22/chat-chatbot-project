@@ -14,11 +14,9 @@ body {
   width: 100%;
 }
 
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
+.message-box {
+  scroll-behavior: smooth;
 }
-
-.hide-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+.message-box::-webkit-scrollbar {
+  display: none;
 }
