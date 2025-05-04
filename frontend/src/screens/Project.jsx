@@ -125,7 +125,6 @@ const Project = () => {
 
   function WriteAiMessage(message) {
     const messageObject = JSON.parse(message);
-
     return (
       <div className="overflow-auto bg-slate-950 text-white rounded-sm p-2 max-w-full break-words max-w-[calc(100%-2rem)]">
         <Markdown
@@ -150,6 +149,7 @@ const Project = () => {
       });
     }
 
+    //
     receiveMessage("project-message", (data) => {
       console.log(data);
 
@@ -161,17 +161,14 @@ const Project = () => {
         webContainer?.mount(message.fileTree);
 
         if (message.fileTree) {
-          setFileTree((prevFileTree) => ({
-            ...prevFileTree,
-            ...message.fileTree,
-          }));
+          setFileTree(message.fileTree || {});
         }
         setMessages((prevMessages) => [...prevMessages, data]); // Update messages state
       } else {
         setMessages((prevMessages) => [...prevMessages, data]); // Update messages state
       }
-      scrollToBottom();
     });
+    //
 
     axios
       .get(`/projects/get-project/${location.state.project._id}`)
@@ -336,7 +333,6 @@ const Project = () => {
             ))}
           </div>
         </div>
-
         <div className="code-editor flex flex-col flex-grow h-full shrink">
           <div className="top flex justify-between w-full">
             <div className="files flex">
@@ -356,11 +352,6 @@ const Project = () => {
             <div className="actions flex gap-2">
               <button
                 onClick={async () => {
-                  if (!fileTree["package.json"]) {
-                    console.error("package.json is missing in the file tree");
-                    return;
-                  }
-
                   await webContainer.mount(fileTree);
 
                   const installProcess = await webContainer.spawn("npm", [

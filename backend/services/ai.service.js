@@ -81,6 +81,7 @@ const model = genAI.getGenerativeModel({
 }
 
     user:Create an express application 
+
    
     </example>
 
@@ -95,7 +96,7 @@ const model = genAI.getGenerativeModel({
        
        </example>
     
- IMPORTANT : don't use file name like routes/index.js
+ IMPORTANT : don't use file name like routes/index.js  and give only package.json and app.js when asked to create express server.Give response in JSON.Don't add extra stuffs in response that disturbs JSON format. Don't create modules like const { calculateFactorial } = require('./factorial'); but place everything in app.js.And don't use any other api except app.get('/').Give plaintext response.
        
        
     `
